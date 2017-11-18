@@ -7,6 +7,9 @@ module.exports = $import(
         .then(Unit.showDetail)
         .then(Unit.showSummary)
         .then(Unit.setExitCodeOnFailures);
+}).catch(err => {
+    console.error(err);
+    process.exitCode = -1;
 });
 
 
