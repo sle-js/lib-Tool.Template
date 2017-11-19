@@ -31,10 +31,23 @@ module.exports = $importAll([
     assumptionEqual(parse("Hello World"), {variables: [], template: "Hello World"});
 
 
-    const translate = file =>
+    const readFile = templateFileName =>
         FileSystem
-            .readFile(file)
-            .catch(err => Errors.TemplateFileDoesNotExist(file));
+            .readFile(templateFileName)
+            .catch(err => Promise.reject(Errors.TemplateFileDoesNotExist(templateFileName)));
+
+
+    const translate = templateFileName => {
+        const validate = content =>
+            Array.length(content.variables) === 0
+                ? Promise.reject(Errors.NoParameters(templateFileName))
+                : Promise.resolve(content);
+
+        return readFile(templateFileName)
+            .then(parse)
+            .then(validate);
+    };
+
 
     return {
         translate

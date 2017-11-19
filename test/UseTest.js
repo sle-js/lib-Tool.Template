@@ -26,11 +26,21 @@ module.exports = $importAll([
             .catch(err => Unit.Test(name)(Assertion.fail("Error handler raised: " + toString(err))));
 
 
+    const catchTest = name => promise => errorAssertion =>
+        promise
+            .then(_ => Unit.Test(name)(Assertion.fail("Expected error but returned a success: " + toString(_))))
+            .catch(err => Unit.Test(name)(errorAssertion(err)))
+            .catch(err => Unit.Test(name)(Assertion.fail("Error handler raised: " + toString(err))));
+
     return Unit.Suite("Use Test")([
 
-        thenTest("Template file does not exists")(
+        catchTest("Template file does not exists")(
             Use.translate(path("./unknown_file.template")))(
-            okay => Assertion.equals(toString(okay))(toString(Errors.TemplateFileDoesNotExist(path("./unknown_file.template"))))),
+            err => Assertion.equals(toString(err))(toString(Errors.TemplateFileDoesNotExist(path("./unknown_file.template"))))),
+
+        catchTest("Template file has no parameters")(
+            Use.translate(path("./no-parameters.template")))(
+            err => Assertion.equals(toString(err))(toString(Errors.NoParameters(path("./no-parameters.template"))))),
 
         // thenTest("Template with input of Bob and Mary will return the expected output")(
         //     Use.translate(path("./001.template"))
