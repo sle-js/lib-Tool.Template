@@ -11,7 +11,7 @@ const NoParameters = name =>
     ({package: "Text.Template", kind: "NoParameters", name});
 
 
-module.exports = {
+module.exports = Promise.resolve({
     NoParameters,
     TemplateFileDoesNotExist
-};
+});
