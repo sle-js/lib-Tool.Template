@@ -54,13 +54,5 @@ module.exports = $importAll([
                     FileSystem.readFile(path("./001.output"))
                 ])))(
             okay => Assertion.equals(okay[0])(okay[1]))
-
-        // thenTest("Template with input of Bob and Mary will return the expected output")(
-        //     Use.translate(path("./001.template"))
-        //         .then(template => Promise.all([
-        //             template("Bob")("Mary"),
-        //             FileSystem.readFile(path("./001.output"))
-        //         ])))(
-        //     okay => Assertion.equals(okay[0])(okay[1]))
     ])
 });
