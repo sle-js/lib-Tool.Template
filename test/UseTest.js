@@ -37,8 +37,8 @@ module.exports = $importAll([
             .catch(err => Unit.Test(name)(errorAssertion(err)))
             .catch(err => Unit.Test(name)(Assertion.fail("Error handler raised: " + toString(err))));
 
-    return Unit.Suite("Use Test")([
 
+    return Unit.Suite("Use Test")([
         catchTest("Template file does not exists")(
             Use.translate(path("./unknown_file.template")))(
             err => Assertion.equals(toString(err))(toString(Errors.TemplateFileDoesNotExist(path("./unknown_file.template"))))),
