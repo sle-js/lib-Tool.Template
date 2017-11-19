@@ -2,12 +2,28 @@ module.exports = $importAll([
     "core:Native.Data.Array:1.2.0",
     "./src/Errors",
     "core:Native.System.IO.FileSystem:1.1.0",
+    "path",
     "core:Native.Data.String:1.0.0"
 ]).then($imports => {
     const Array = $imports[0];
     const Errors = $imports[1];
     const FileSystem = $imports[2];
-    const String = $imports[3];
+    const Path = $imports[3];
+    const String = $imports[4];
+
+
+    const replaceExtension = newExtension => fileName => {
+        const parseFileName =
+            Path.parse(fileName);
+
+        return Path.join(parseFileName.dir, parseFileName.name + newExtension);
+    };
+    assumptionEqual(replaceExtension(".js")("/home/bob/test.sample"), "/home/bob/test.js");
+    assumptionEqual(replaceExtension(".js")("./test.sample"), "test.js");
+
+
+    const target = fileName =>
+        replaceExtension(".js")(fileName);
 
 
     const parse = content => {
@@ -31,6 +47,46 @@ module.exports = $importAll([
     assumptionEqual(parse("Hello World"), {variables: [], template: "Hello World"});
 
 
+    const templateRE =
+        /<%(.+?)%>/g;
+
+
+    const toJavaScript = template => {
+        const formatExpression = text =>
+            '    r.push(' + text.trim() + ');\n';
+
+        const formatLiteral = text =>
+            (text === '')
+                ? ""
+                : '    r.push("' + text.replace(/"/g, '\\"') + '");\n';
+
+        let code = '    const r=[];\n';
+        template.split('\n').forEach((line, index) => {
+            if (line.startsWith(">")) {
+                code += line.substr(1) + '\n'
+            } else {
+                let cursor = 0;
+                if (line.startsWith("+")) {
+                    cursor = 1;
+                } else if (index > 0) {
+                    code += '    r.push("\\n");\n';
+                }
+                templateRE.lastIndex = 0;
+                let match;
+                while (match = templateRE.exec(line)) {
+                    code += formatLiteral(line.slice(cursor, match.index));
+                    code += formatExpression(match[1]);
+                    cursor = match.index + match[0].length;
+                }
+                code += formatLiteral(line.substr(cursor, line.length - cursor));
+            }
+        });
+        code += '    return r.join("");';
+
+        return code;
+    };
+
+
     const readFile = templateFileName =>
         FileSystem
             .readFile(templateFileName)
@@ -45,7 +101,9 @@ module.exports = $importAll([
 
         return readFile(templateFileName)
             .then(parse)
-            .then(validate);
+            .then(validate).then(_ => ({variables: _.variables, template: toJavaScript(_.template)}))
+            .then(_ => "const process = " + _.variables.map(i => i + " => ").join("") + "{\n" + _.template + "\n" + "};\n\n\nmodule.exports = process;\n")
+            .then(content => FileSystem.writeFile(targetFileName)(content));
     };
 
 
