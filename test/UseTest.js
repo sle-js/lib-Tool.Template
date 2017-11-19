@@ -17,16 +17,27 @@ module.exports = $importAll([
 
 
     const path = relativeName =>
-        Path.join(Path.dirname(__filename), relativeName);
+        Path.resolve(Path.dirname(__filename), relativeName);
 
 
     const thenTest = name => promise => thenAssertion =>
         promise
             .then(okay => Unit.Test(name)(thenAssertion(okay)))
-            .catch(err => Unit.Test(name)(Assertion.fail("Error handler raised: " + err)));
+            .catch(err => Unit.Test(name)(Assertion.fail("Error handler raised: " + toString(err))));
 
 
-    return thenTest("Template file does not exists")(
-        Use.translate(path("./unknown_file.template")))(
-        okay => Assertion.equals(toString(okay))(toString(Errors.TemplateFileDoesNotExist(path("./unknown_file.template")))))
-}).catch(console.error);
+    return Unit.Suite("Use Test")([
+
+        thenTest("Template file does not exists")(
+            Use.translate(path("./unknown_file.template")))(
+            okay => Assertion.equals(toString(okay))(toString(Errors.TemplateFileDoesNotExist(path("./unknown_file.template"))))),
+
+        // thenTest("Template with input of Bob and Mary will return the expected output")(
+        //     Use.translate(path("./001.template"))
+        //         .then(template => Promise.all([
+        //             template("Bob")("Mary"),
+        //             FileSystem.readFile(path("./001.output"))
+        //         ])))(
+        //     okay => Assertion.equals(okay[0])(okay[1]))
+    ])
+});
