@@ -35,7 +35,7 @@ module.exports = $importAll([
 
         const variables =
             hasParameters
-                ? Array.map(String.trim)(String.split(",")(String.substring(3)(indexOfNewline)(content)))
+                ? Array.map(String.trim)(String.split(" ")(String.trim(String.substring(3)(indexOfNewline)(content))))
                 : [];
 
         const template =
@@ -43,7 +43,7 @@ module.exports = $importAll([
 
         return {variables, template};
     };
-    assumptionEqual(parse("%%% a, b\nHello World"), {variables: ["a", "b"], template: "Hello World"});
+    assumptionEqual(parse("%%% a b\nHello World"), {variables: ["a", "b"], template: "Hello World"});
     assumptionEqual(parse("Hello World"), {variables: [], template: "Hello World"});
 
 
@@ -99,15 +99,19 @@ module.exports = $importAll([
                 ? Promise.reject(Errors.NoParameters(templateFileName))
                 : Promise.resolve(content);
 
+        const targetFileName =
+            target(templateFileName);
+
         return readFile(templateFileName)
             .then(parse)
             .then(validate).then(_ => ({variables: _.variables, template: toJavaScript(_.template)}))
-            .then(_ => "const process = " + _.variables.map(i => i + " => ").join("") + "{\n" + _.template + "\n" + "};\n\n\nmodule.exports = process;\n")
+            .then(_ => "const process = " + _.variables.map(i => i + " => ").join("") + "{\n" + _.template + "\n" + "};\n\n\nmodule.exports = Promise.resolve(process);\n")
             .then(content => FileSystem.writeFile(targetFileName)(content));
     };
 
 
     return {
+        target,
         translate
     }
 });
