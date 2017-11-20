@@ -1,0 +1,16 @@
+interface Error {
+    package: "Text.Template";
+    kind: string;
+}
+
+
+interface TemplateFileDoesNotExist <: Error {
+    kind: "TemplateFileDoesNotExist";
+    name: string;
+}
+
+
+interface NoParameters <: Error {
+    kind: "NoParameters";
+    name: string;
+}
