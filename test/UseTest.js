@@ -1,17 +1,12 @@
-module.exports = $importAll([
-    "core:Test.Unit.Assertion:2.0.1",
-    "./../src/Errors",
-    "core:Native.System.IO.FileSystem:1.0.0",
-    "path",
-    "../index.js",
-    "core:Test.Unit:1.0.0"
-]).then($imports => {
-    const Assertion = $imports[0];
-    const Errors = $imports[1];
-    const FileSystem = $imports[2];
-    const Path = $imports[3];
-    const Use = $imports[4];
-    const Unit = $imports[5];
+module.exports = $import(
+    "./Libs"
+).then($imports => {
+    const Assertion = $imports.Assertion;
+    const Errors = $imports.Errors;
+    const FileSystem = $imports.FileSystem;
+    const Path = $imports.Path;
+    const Index = $imports.Index;
+    const Unit = $imports.Unit;
 
 
     const toString = o =>
@@ -40,11 +35,11 @@ module.exports = $importAll([
 
     return Unit.Suite("Use Test")([
         catchTest("Template file does not exists")(
-            Use.translate(path("./unknown_file.template")))(
+            Index.translate(path("./unknown_file.template")))(
             err => Assertion.equals(toString(err))(toString(Errors.TemplateFileDoesNotExist(path("./unknown_file.template"))))),
 
         catchTest("Template file has no parameters")(
-            Use.translate(path("./no-parameters.template")))(
+            Index.translate(path("./no-parameters.template")))(
             err => Assertion.equals(toString(err))(toString(Errors.NoParameters(path("./no-parameters.template"))))),
 
         thenTest("Template with input of Bob and Mary will return the expected output")(

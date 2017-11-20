@@ -1,15 +1,11 @@
-module.exports = $importAll([
-    "core:Native.Data.Array:1.2.0",
-    "use:./src/Errors.estree core:Tool.ESTree:1.0.0",
-    "core:Native.System.IO.FileSystem:1.1.0",
-    "path",
-    "core:Native.Data.String:1.0.0"
-]).then($imports => {
-    const Array = $imports[0];
-    const Errors = $imports[1];
-    const FileSystem = $imports[2];
-    const Path = $imports[3];
-    const String = $imports[4];
+module.exports = $import(
+    "./src/Libs"
+).then($imports => {
+    const Array = $imports.Array;
+    const Errors = $imports.Errors;
+    const FileSystem = $imports.FileSystem;
+    const Path = $imports.Path;
+    const String = $imports.String;
 
 
     const replaceExtension = newExtension => fileName => {

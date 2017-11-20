@@ -1,6 +1,8 @@
 module.exports = $import(
-    "core:Test.Unit:1.0.0"
-).then(Unit => {
+    "./test/Libs"
+).then($imports => {
+    const Unit = $imports.Unit;
+
     return Unit.Suite("Tool.Template")([
         $import("./test/UseTest")
     ])
@@ -12,5 +14,3 @@ module.exports = $import(
     process.exitCode = -1;
     return err;
 });
-
-
